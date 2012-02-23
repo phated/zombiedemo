@@ -1,14 +1,26 @@
 <html>
   <head>
-    <script src="http://ajax.googleapis.com/ajax/libs/dojo/1.6/dojo/dojo.xd.js" type="text/javascript" djConfig="baseUrl: './scripts/', modulePaths: {mwe: 'mwe'} "></script>
+    <!--<script src="http://ajax.googleapis.com/ajax/libs/dojo/1.6/dojo/dojo.xd.js" type="text/javascript" djConfig="baseUrl: './scripts/', modulePaths: {mwe: 'mwe'} "></script>-->
+    <script data-dojo-config="async: true, isDebug: 1" src="http://ajax.googleapis.com/ajax/libs/dojo/1.7.1/dojo/dojo.js"></script>
     <script src="scripts/thirdparty/soundmanager2.js"></script>
 
-    <script src="scripts/mwe/Sprite.js" type="text/javascript"></script>
+    <!--<script src="scripts/mwe/Sprite.js" type="text/javascript"></script>
     <script src="scripts/mwe/GameCore.js" type="text/javascript"></script>
     <script src="scripts/mwe/Animation.js" type="text/javascript"></script>
     <script src="scripts/mwe/Sprite.js" type="text/javascript"></script>
     <script src="scripts/mwe/reiner/Creature.js" type="text/javascript"></script>
-    <script src="scripts/zombie.js"></script>
+    <script src="scripts/zombie.js"></script>-->
+    <script>
+      require({
+          baseUrl: "scripts/",
+          tlmSiblingOfDojo: false,
+          packages: [
+              { name: "dojo", location: "dojo" },
+              { name: "mwe", location: "mwe" },
+              { name: "game", location: "./" }
+          ]
+      }, ['game']);
+    </script>
     <style>
       canvas {
 	      border: 1px solid #BADA55;

@@ -1,4 +1,4 @@
-require [ 'mwe/GameCore', 'mwe/Sprite', 'mwe/ResourceManager', 'mwe/GameAction', 'mwe/reiner/Creature' ], (GameCore, Sprite, ResourceManager, GameAction, Creature) ->
+require [ 'mwe/GameCore', 'mwe/Sprite', 'mwe/ResourceManager', 'mwe/CanvasManager', 'mwe/GameAction', 'mwe/reiner/Creature', 'dojo/keys' ], (GameCore, Sprite, ResourceManager, CanvasManager, GameAction, Creature, keys) ->
   gameWidth = 800
   gameHeight = 600
   spriteList = []
@@ -21,16 +21,16 @@ require [ 'mwe/GameCore', 'mwe/Sprite', 'mwe/ResourceManager', 'mwe/GameAction',
     rm = new ResourceManager imageDir: 'images/'
     images = rm.loadFiles {
       backgroundImg: 'background_800.png'
-	    face: 'GHappyAdrian.png'
-	    drunk: 'DrunkAdrian.png'
-	    bwi: 'builder/walking_b.png'
+      #face: 'GHappyAdrian.png'
+      #drunk: 'DrunkAdrian.png'
+      bwi: 'builder/walking_b.png'
       swi2: 'soldier/walking_b.png'
-	    sshi: 'soldier/shooting.png'
-	    sgi: 'soldier/greeting_b.png'
-	    gwi: 'girl/walking_b.png'
-	    gzwi: 'greenZombie/walking_b.png'
-	    gzdi: 'greenZombie/dying_b.png'
-	    gzii: 'greenZombie/talking_b.png'
+      sshi: 'soldier/shooting.png'
+      sgi: 'soldier/greeting_b.png'
+      gwi: 'girl/walking_b.png'
+      gzwi: 'greenZombie/walking_b.png'
+      gzdi: 'greenZombie/dying_b.png'
+      gzii: 'greenZombie/talking_b.png'
     }
 
     for i in 3
@@ -95,12 +95,17 @@ require [ 'mwe/GameCore', 'mwe/Sprite', 'mwe/ResourceManager', 'mwe/GameAction',
       talkingAnims: sprite.createAnimations 8, 75, images.bwi, 96, 96, 0
       name: 'cw'
     }
+    
+    cm = new CanvasManager {
+      canvasId: 'drawing'
+    }
 
     game = new GameCore {
       canvasId: 'drawing'
+      canvasManager: cm
       height: gameHeight
       width: gameWidth
-      resourceManager = rm
+      resourceManager: rm
       loadingBackground: '#000'
       loadingForeground: '#BADA55'
       initInput: (im) ->
@@ -112,24 +117,25 @@ require [ 'mwe/GameCore', 'mwe/Sprite', 'mwe/ResourceManager', 'mwe/GameAction',
           name: 'exit'
           behavior: @moveLeft.statics.DETECT_INITIAL_PRESS_ONLY
         }
-        im.mapToKey @moveLeft, dojo.keys.LEFT_ARROW
-        im.mapToKey @moveRight, dojo.keys.RIGHT_ARROW
-        im.mapToKey @moveUp, dojo.keys.UP_ARROW
-        im.mapToKey @moveDown, dojo.keys.DOWN_ARROW
-        im.mapToKey @exit, dojo.keys.ESCAPE
+        im.mapToKey @moveLeft, keys.LEFT_ARROW
+        im.mapToKey @moveRight, keys.RIGHT_ARROW
+        im.mapToKey @moveUp, keys.UP_ARROW
+        im.mapToKey @moveDown, keys.DOWN_ARROW
+        im.mapToKey @exit, keys.ESCAPE
+    }
         
     game.update = (elapsedTime) ->
       @handleInput()
-      dojo.forEach spriteList, (s) ->
+      for s in spriteList
         s.hasCollided = false
         s.hasHitWall = false
         s.update elapsedTime
         if handleWalls s
           playAnvil = true
           s.hasHitWall = false
-      dojo.forEach spriteList, (s) ->
+      for s in spriteList
         if not s.hasCollided and not s.hasHitWall
-          dojo.forEach spriteList, (otherS) ->
+          for otherS in spriteList
             if s isnt otherS
               if intersectSprite s, otherS
                 s.hasCollided = true
@@ -142,9 +148,9 @@ require [ 'mwe/GameCore', 'mwe/Sprite', 'mwe/ResourceManager', 'mwe/GameAction',
       
     game.draw = (context) ->
       context.drawImage backgroundImg, 0, 0
-      dojo.forEach spriteList, (s) ->
+      for s in spriteList
         s.drawCurrentFrame context
-        
+    ###
     game.handleInput = ->
       if @moveLeft.isPressed()
         sprite.dx = -1 * Math.abs sprite.xStartVelocity
@@ -159,7 +165,7 @@ require [ 'mwe/GameCore', 'mwe/Sprite', 'mwe/ResourceManager', 'mwe/GameAction',
         sprite.dy = Math.abs sprite.yStartVelocity
       else
         sprite.dy = 0
-        
+    ###
     game.run()
     
   jump = 5

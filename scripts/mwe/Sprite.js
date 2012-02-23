@@ -1,155 +1,74 @@
 
-dojo.provide("mwe.Sprite");
-
-
-
-dojo.require("mwe.Animation");
-
-/*********************** mwe.Sprite ********************************************/
-
-dojo.declare("mwe.Sprite", null, {
-    // position (pixels)
+define(['dojo/_base/declare', 'mwe/Animation'], function(declare, Animation) {
+  return declare('Sprite', null, {
     x: 0.0,
     y: 0.0,
-    // velocity (pixels per millisecond)
     dx: 0.0,
     dy: 0.0,
     name: null,
     collisionRadius: 40,
-
-    /**
-        Creates a new Sprite object.
-    */
-    constructor: function(args){
-		dojo.safeMixin(this, args);
-		//anim = args.anim;
+    constructor: function(args) {
+      return declare.safeMixin(this, args);
     },
-
-    /**
-        Updates this Sprite's Animation and its position based
-        on the velocity.
-    */
     update: function(elapsedTime) {
-    	this;
-        this.x += this.dx * elapsedTime;
-        this.y += this.dy * elapsedTime;
-        this.anim.update(elapsedTime);
+      this.x += this.dx * elapsedTime;
+      this.y += this.dy * elapsedTime;
+      return this.anim.update(elapsedTime);
     },
-
-    /**
-        Gets this Sprite's current x position.
-    */
     getX: function() {
-        return this.x;
+      return this.x;
     },
-
-    /**
-        Gets this Sprite's current y position.
-    */
     getY: function() {
-        return this.y;
+      return this.y;
     },
-
-    /**
-        Sets this Sprite's current x position.
-    */
     setX: function(x) {
-        this.x = x;
+      return this.x = x;
     },
-
-    /**
-        Sets this Sprite's current y position.
-    */
     setY: function(y) {
-        this.y = y;
+      return this.y = y;
     },
-
-    /**
-        Gets this Sprite's width, based on the size of the
-        current image.
-    */
     getWidth: function() {
-        return this.anim.width;
+      return this.anim.width;
     },
-
-    /**
-        Gets this Sprite's height, based on the size of the
-        current image.
-    */
     getHeight: function() {
-        return this.anim.height;
+      return this.anim.height;
     },
-
-    /**
-        Gets the horizontal velocity of this Sprite in pixels
-        per millisecond.
-    */
     getVelocityX: function() {
-        return this.dx;
+      return this.dx;
     },
-
-    /**
-        Gets the vertical velocity of this Sprite in pixels
-        per millisecond.
-    */
     getVelocityY: function() {
-        return this.dy;
+      return this.dy;
     },
-
-    /**
-        Sets the horizontal velocity of this Sprite in pixels
-        per millisecond.
-    */
-    setVelocityX: function(dx) {
-        
-        this.dx = this.limitSpeed(dx);
-    },
-
-    /**
-    Sets the vertical velocity of this Sprite in pixels
-    per millisecond.
-	*/
-	setVelocityY: function(dy) {
-    	this.dy = this.limitSpeed(dy);
-	},
-
-    limitSpeed: function(v){
-        if(Math.abs(v) > this.getMaxSpeed()){
-			if(v > 0){
-				return this.getMaxSpeed();
-			}else if(v < 0){
-				return this.getMaxSpeed();
-			}else{
-				return  0;
-			}
-        }else{
-			return v;
+    limitSpeed: function(v) {
+      if (this.getMaxSpeed()) {
+        if (Math.abs(v > this.getMaxSpeed())) {
+          if (v !== 0) {
+            return this.getMaxSpeed();
+          } else {
+            return 0;
+          }
+        } else {
+          return v;
         }
+      } else {
+        return v;
+      }
     },
-
-	/**
-    Gets the maximum speed of this Creature.
-	*/
-	getMaxSpeed: function() {
-    	return 0;
-	},
-
-
-
-    /**
-        Gets this Sprite's current animation frame.
-    */
+    getMaxSpeed: function() {
+      return this.maxSpeed;
+    },
     getCurrentFrame: function() {
-        return this.anim.getCurrentFrame();
+      return this.anim.getCurrentFrame();
     },
-    
-    drawCurrentFrame: function(context){
-    	var cf = this.anim.getCurrentFrame();
-    	context.drawImage(this.anim.image, cf.imgSlotX * this.anim.width, cf.imgSlotY * this.anim.height, this.anim.width, this.anim.height, this.x,this.y, this.anim.width, this.anim.height);
+    drawCurrentFrame: function(context) {
+      var cf;
+      cf = this.anim.getCurrentFrame();
+      return context.drawImage(this.anim.image, cf.imgSlotX * this.anim.width, cf.imgSlotY * this.anim.height, this.anim.width, this.anim.height, this.x, this.y, this.anim.width, this.anim.height);
     },
-	
-	clone: function() {
-        return new mwe.Sprite({anim: this.anim.clone()});
+    clone: function() {
+      return new mwe.Sprite({
+        anim: this.anim.clone()
+      });
     }
+  });
 });
-
