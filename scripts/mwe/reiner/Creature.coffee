@@ -25,11 +25,11 @@ define [ 'dojo/_base/declare', 'mwe/Sprite', 'mwe/Animation' ], (declare, Sprite
     walkingAnims: []
     dyingAnims: []
     idleAnims: []
-    direction: 0
+    direction: 5
 
     constructor: (args) ->
       @state = @statics.STATE_IDLE
-      @direction = @statics.EAST
+      @direction = @statics.SOUTH
       declare.safeMixin @, args
 
     update: (elapsedTime) ->

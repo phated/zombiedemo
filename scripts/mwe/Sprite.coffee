@@ -50,22 +50,25 @@ define [ 'dojo/_base/declare', 'mwe/Animation' ], (declare, Animation) ->
     # Gets the vertical velocity of this Sprite in pixels per millisecond
     getVelocityY: ->
       return @dy
+      
+    setVelocityX: (dx) ->
+      @dx = @limitSpeed dx
+      
+    setVelocityY: (dy) ->
+      @dy = @limitSpeed dy
 
     limitSpeed: (v) ->
-      if @getMaxSpeed()
-        if Math.abs v > @getMaxSpeed()
-          if v isnt 0
-            return @getMaxSpeed()
-          else
-            return 0
+      if Math.abs v > @getMaxSpeed()
+        if v isnt 0
+          return @getMaxSpeed()
         else
-          return v
+          return 0
       else
         return v
 
     # Gets the maximum speed of this Creature
     getMaxSpeed: ->
-      return @maxSpeed
+      return 0
 
     # Gets this Sprite's current animation frame
     getCurrentFrame: ->

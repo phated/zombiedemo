@@ -24,10 +24,10 @@ define(['dojo/_base/declare', 'mwe/Sprite', 'mwe/Animation'], function(declare, 
     walkingAnims: [],
     dyingAnims: [],
     idleAnims: [],
-    direction: 0,
+    direction: 5,
     constructor: function(args) {
       this.state = this.statics.STATE_IDLE;
-      this.direction = this.statics.EAST;
+      this.direction = this.statics.SOUTH;
       return declare.safeMixin(this, args);
     },
     update: function(elapsedTime) {

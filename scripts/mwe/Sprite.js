@@ -39,23 +39,25 @@ define(['dojo/_base/declare', 'mwe/Animation'], function(declare, Animation) {
     getVelocityY: function() {
       return this.dy;
     },
+    setVelocityX: function(dx) {
+      return this.dx = this.limitSpeed(dx);
+    },
+    setVelocityY: function(dy) {
+      return this.dy = this.limitSpeed(dy);
+    },
     limitSpeed: function(v) {
-      if (this.getMaxSpeed()) {
-        if (Math.abs(v > this.getMaxSpeed())) {
-          if (v !== 0) {
-            return this.getMaxSpeed();
-          } else {
-            return 0;
-          }
+      if (Math.abs(v > this.getMaxSpeed())) {
+        if (v !== 0) {
+          return this.getMaxSpeed();
         } else {
-          return v;
+          return 0;
         }
       } else {
         return v;
       }
     },
     getMaxSpeed: function() {
-      return this.maxSpeed;
+      return 0;
     },
     getCurrentFrame: function() {
       return this.anim.getCurrentFrame();
@@ -66,7 +68,7 @@ define(['dojo/_base/declare', 'mwe/Animation'], function(declare, Animation) {
       return context.drawImage(this.anim.image, cf.imgSlotX * this.anim.width, cf.imgSlotY * this.anim.height, this.anim.width, this.anim.height, this.x, this.y, this.anim.width, this.anim.height);
     },
     clone: function() {
-      return new mwe.Sprite({
+      return new Sprite({
         anim: this.anim.clone()
       });
     }

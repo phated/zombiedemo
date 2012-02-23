@@ -19,7 +19,48 @@ require(['mwe/GameCore', 'mwe/Sprite', 'mwe/ResourceManager', 'mwe/CanvasManager
       return sound.play() if sound
       return console.log "sound not loaded"
   */
-  require(['dojo/domReady!'], function() {
+  jump = 5;
+  playFart = false;
+  handleWalls = function(s) {
+    var hitWall;
+    hitWall = false;
+    if (s.x > gameWidth - s.w) {
+      s.x = s.x - jump;
+      flipX(s);
+      hitWall = true;
+    } else if (s.x < 0) {
+      s.x = s.x + jump;
+      flipX(s);
+      hitWall = true;
+    }
+    if (s.y > gameHeight - s.h) {
+      s.y = s.y - jump;
+      flipY(s);
+      hitWall = true;
+    } else if (s.y < 0) {
+      s.y = s.y + jump;
+      flipY(s);
+      hitWall = true;
+    }
+    return hitWall;
+  };
+  flipX = function(s) {
+    return s.dx = s.dx * -1;
+  };
+  flipY = function(s) {
+    return s.dy = s.dy * -1;
+  };
+  intersectSprite = function(s1, s2) {
+    var distance_squared, radii_squared;
+    distance_squared = Math.pow((s1.x + (s1.anim.width / 2)) - (s2.x + (s2.anim.width / 2)), 2) + Math.pow((s1.y + (s1.anim.height / 2)) - (s2.y + (s2.anim.height / 2)), 2);
+    radii_squared = Math.pow(s1.collisionRadius + s2.collisionRadius, 2);
+    return distance_squared < radii_squared;
+  };
+  changeDirection = function() {
+    sprite.dy = sprite.dy * -1;
+    return sprite.dx = sprite.dx * -1;
+  };
+  return require(['dojo/domReady!'], function() {
     var cm, game, girl, i, im, images, rm, soldier, sprite, zombie;
     rm = new ResourceManager({
       imageDir: 'images/'
@@ -199,45 +240,4 @@ require(['mwe/GameCore', 'mwe/Sprite', 'mwe/ResourceManager', 'mwe/CanvasManager
     };
     return game.run();
   });
-  jump = 5;
-  playFart = false;
-  handleWalls = function(s) {
-    var hitWall;
-    hitWall = false;
-    if (s.x > gameWidth - s.w) {
-      s.x = s.x - jump;
-      flipX(s);
-      hitWall = true;
-    } else if (s.x < 0) {
-      s.x = s.x + jump;
-      flipX(s);
-      hitWall = true;
-    }
-    if (s.y > gameHeight - s.h) {
-      s.y = s.y - jump;
-      flipY(s);
-      hitWall = true;
-    } else if (s.y < 0) {
-      s.y = s.y + jump;
-      flipY(s);
-      hitWall = true;
-    }
-    return hitWall;
-  };
-  flipX = function(s) {
-    return s.dx = s.dx * -1;
-  };
-  flipY = function(s) {
-    return s.dy = s.dy * -1;
-  };
-  intersectSprite = function(s1, s2) {
-    var distance_squared, radii_squared;
-    distance_squared = Math.pow((s1.x + (s1.anim.width / 2)) - (s2.x + (s2.anim.width / 2)), 2) + Math.pow((s1.y + (s1.anim.height / 2)) - (s2.y + (s2.anim.height / 2)), 2);
-    radii_squared = Math.pow(s1.collisionRadius + s2.collisionRadius, 2);
-    return distance_squared < radii_squared;
-  };
-  return changeDirection = function() {
-    sprite.dy = sprite.dy * -1;
-    return sprite.dx = sprite.dx * -1;
-  };
 });
