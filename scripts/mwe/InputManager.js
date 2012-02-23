@@ -16,7 +16,7 @@ limitations under the License.
 */
 var _this = this;
 
-define(['dojo/_base/declare', 'dojo/on', 'dojo/touch', 'dojo/dom-geometry', 'dojo/_base/lang', 'mwe/GameAction'], function(declare, bind, touch, domGeom, lang, GameAction) {
+define(['dojo/_base/declare', 'dojo/on', 'dojo/dom-geometry', 'dojo/_base/lang', 'mwe/GameAction'], function(declare, bind, domGeom, lang, GameAction) {
   return declare('InputManager', null, {
     keyActions: [],
     mouseAction: null,
@@ -24,9 +24,7 @@ define(['dojo/_base/declare', 'dojo/on', 'dojo/touch', 'dojo/dom-geometry', 'doj
     canvasManager: null,
     box: null,
     constructor: function(args) {
-      declare.safeMixin(this, args);
-      bind(document, 'keydown', this.keyPressed);
-      return bind(document, 'keyup', this.keyReleased);
+      return declare.safeMixin(this, args);
     },
     bind: function(target, eventTarget) {
       return bind(target, eventTarget, this[eventTarget]);
@@ -51,6 +49,10 @@ define(['dojo/_base/declare', 'dojo/on', 'dojo/touch', 'dojo/dom-geometry', 'doj
       bind(document, 'touchend', this.touchEnd);
       return bind(this.canvasManager.canvas, 'touchmove', this.touchMove);
     },
+    bindKeys: function() {
+      bind(document, 'keydown', lang.hitch(this, this.keyPressed));
+      return bind(document, 'keyup', lang.hitch(this, this.keyReleased));
+    },
     setMouseAction: function(gameAction) {
       return this.mouseAction = gameAction;
     },
@@ -67,7 +69,7 @@ define(['dojo/_base/declare', 'dojo/on', 'dojo/touch', 'dojo/dom-geometry', 'doj
       if (this.keyActions.length) return this.keyActions[event.keyCode];
       return null;
     },
-    keyPressed: function(event, test) {
+    keyPressed: function(event) {
       var gameAction;
       gameAction = this.getKeyAction(event);
       if ((gameAction != null) && !gameAction.isPressed()) {

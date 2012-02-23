@@ -7,12 +7,13 @@ define(['dojo/_base/declare', 'mwe/AnimFrame'], function(declare, AnimFrame) {
     height: 64,
     width: 64,
     image: null,
+    frames: [],
     constructor: function(args) {
       declare.safeMixin(this, args);
       return this.start();
     },
     createFromTile: function(frameCount, frameTimes, img, h, w, ySlot) {
-      var anim, currentFrameTime, isFTArray, j, _i, _len;
+      var anim, currentFrameTime, isFTArray, j, _ref;
       anim = new Animation({
         image: img,
         height: h,
@@ -21,8 +22,7 @@ define(['dojo/_base/declare', 'mwe/AnimFrame'], function(declare, AnimFrame) {
       isFTArray = Array.isArray(frameTimes);
       currentFrameTime = 1;
       if (!ySlot) ySlot = 0;
-      for (_i = 0, _len = frameCount.length; _i < _len; _i++) {
-        j = frameCount[_i];
+      for (j = 0, _ref = frameCount - 1; 0 <= _ref ? j <= _ref : j >= _ref; 0 <= _ref ? j++ : j--) {
         if (isFTArray) {
           currentFrameTime = frameTimes[j];
         } else {

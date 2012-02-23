@@ -1,8 +1,8 @@
 /*
 This type of sprite is based off of the excellent images from Reiner's tilesets: http://www.reinerstilesets.de/
 
-creatures have walking, idle, and dying animations in 8 isometric directions 
-The animations directions are in E,N,NE,NW,S,SE,SW,W (alphabetical) order simply because that's 
+creatures have walking, idle, and dying animations in 8 isometric directions
+The animations directions are in E,N,NE,NW,S,SE,SW,W (alphabetical) order simply because that's
 how i stitched them together using ImageMagick.
 */
 define(['dojo/_base/declare', 'mwe/Sprite', 'mwe/Animation'], function(declare, Sprite, Animation) {
@@ -51,6 +51,11 @@ define(['dojo/_base/declare', 'mwe/Sprite', 'mwe/Animation'], function(declare, 
         } else if (this.dx < 0 && this.dy === 0) {
           this.direction = this.statics.WEST;
         }
+        if (this.dx === 0 && this.dy === 0) {
+          this.state = this.statics.STATE_IDLE;
+        } else {
+          this.state = this.statics.STATE_WALKING;
+        }
       }
       if (this.state === this.statics.STATE_WALKING) {
         this.anim = this.walkingAnims[this.direction];
@@ -62,21 +67,18 @@ define(['dojo/_base/declare', 'mwe/Sprite', 'mwe/Animation'], function(declare, 
       return this.anim.update(elapsedTime);
     },
     createAnimations: function(frameCount, frameTimes, img, h, w, ySlot) {
-      var anims, currentFrameTime, i, isFTArray, j, _i, _j, _len, _len2, _ref;
+      var anims, currentFrameTime, i, isFTArray, j, _ref;
       anims = [];
       isFTArray = Array.isArray(frameTimes);
       currentFrameTime = 1;
       if (!ySlot) ySlot = 0;
-      _ref = 8;
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        i = _ref[_i];
+      for (i = 0; i <= 7; i++) {
         anims[i] = new Animation({
           height: h,
           width: w,
           image: img
         });
-        for (_j = 0, _len2 = frameCount.length; _j < _len2; _j++) {
-          j = frameCount[_j];
+        for (j = 0, _ref = frameCount - 1; 0 <= _ref ? j <= _ref : j >= _ref; 0 <= _ref ? j++ : j--) {
           if (isFTArray) {
             currentFrameTime = frameTimes[j];
           } else {

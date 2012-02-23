@@ -52,10 +52,6 @@ define [ 'dojo/_base/declare', 'mwe/Sprite', 'mwe/Animation' ], (declare, Sprite
           @direction = @statics.SOUTHWEST
         else if @dx < 0 and @dy is 0
           @direction = @statics.WEST
-        if @dx is 0 and @dy is 0
-          @state = @statics.STATE_IDLE
-        else
-          @state = @statics.STATE_WALKING
 
       if @state is @statics.STATE_WALKING
         @anim = @walkingAnims[@direction]

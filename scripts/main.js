@@ -1,29 +1,26 @@
 
-require(['mwe/GameCore', 'mwe/Sprite', 'mwe/ResourceManager', 'mwe/CanvasManager', 'mwe/GameAction', 'mwe/reiner/Creature', 'dojo/keys'], function(GameCore, Sprite, ResourceManager, CanvasManager, GameAction, Creature, keys) {
-  var changeDirection, flipX, flipY, gameHeight, gameWidth, handleWalls, intersectSprite, jump, playFart, playSound, spriteList;
+require(['mwe/GameCore', 'mwe/Sprite', 'mwe/ResourceManager', 'mwe/CanvasManager', 'mwe/InputManager', 'mwe/GameAction', 'mwe/reiner/Creature'], function(GameCore, Sprite, ResourceManager, CanvasManager, InputManager, GameAction, Creature) {
+  var changeDirection, flipX, flipY, gameHeight, gameWidth, handleWalls, intersectSprite, jump, playFart, spriteList;
   gameWidth = 800;
   gameHeight = 600;
   spriteList = [];
-  soundManager.url = '/nge/swf/';
-  soundManager.useHTML5Audio = true;
-  soundManager.debugMode = false;
-  soundManager.onready(function() {
-    var anvilSound, fartSound;
-    fartSound = soundManager.createSound({
-      id: 'aSound',
-      url: 'sounds/fart.mp3'
-    });
-    return anvilSound = soundManager.createSound({
-      id: 'anvilSound',
-      url: 'sounds/anvil.mp3'
-    });
-  });
-  playSound = function(sound) {
-    if (sound) return sound.play();
-    return console.log("sound not loaded");
-  };
+  /*
+    soundManager.url = '/nge/swf/'
+    # soundManager.flashVersion = 9 # optional: shiny features (default = 8)
+    # soundManager.useFlashBlock = false # optional: enable when you're ready to dive in
+    soundManager.useHTML5Audio = true
+    soundManager.debugMode = false
+  
+    soundManager.onready ->
+      fartSound = soundManager.createSound id: 'aSound', url: 'sounds/fart.mp3'
+      anvilSound = soundManager.createSound id: 'anvilSound', url: 'sounds/anvil.mp3'
+  
+    playSound = (sound) ->
+      return sound.play() if sound
+      return console.log "sound not loaded"
+  */
   require(['dojo/domReady!'], function() {
-    var cm, game, girl, i, images, rm, soldier, sprite, zombie, _i, _len, _ref;
+    var cm, game, girl, i, im, images, rm, soldier, sprite, zombie;
     rm = new ResourceManager({
       imageDir: 'images/'
     });
@@ -38,9 +35,7 @@ require(['mwe/GameCore', 'mwe/Sprite', 'mwe/ResourceManager', 'mwe/CanvasManager
       gzdi: 'greenZombie/dying_b.png',
       gzii: 'greenZombie/talking_b.png'
     });
-    _ref = 3;
-    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-      i = _ref[_i];
+    for (i = 0; i <= 2; i++) {
       zombie = new Creature({
         x: Math.random() * (gameWidth - 96),
         y: Math.random() * (gameHeight - 96),
@@ -73,6 +68,7 @@ require(['mwe/GameCore', 'mwe/Sprite', 'mwe/ResourceManager', 'mwe/CanvasManager
     sprite.walkingAnims = sprite.createAnimations(8, 75, images.swi2, 96, 96, 0);
     sprite.dyingAnims = sprite.createAnimations(8, 75, images.swi2, 96, 96, 0);
     sprite.idleAnims = sprite.createAnimations(9, [3000, 150, 150, 150, 1000, 150, 150, 150, 3000], images.sgi, 96, 96, 0);
+    spriteList.push(sprite);
     girl = new Creature({
       x: 100,
       y: 200,
@@ -88,6 +84,7 @@ require(['mwe/GameCore', 'mwe/Sprite', 'mwe/ResourceManager', 'mwe/CanvasManager
       talkingAnims: sprite.createAnimations(8, 75, images.gwi, 96, 96, 0),
       name: 'girl'
     });
+    spriteList.push(girl);
     soldier = new Creature({
       x: 10,
       y: 150,
@@ -100,17 +97,30 @@ require(['mwe/GameCore', 'mwe/Sprite', 'mwe/ResourceManager', 'mwe/CanvasManager
       talkingAnims: sprite.createAnimations(8, 75, images.bwi, 96, 96, 0),
       name: 'cw'
     });
+    spriteList.push(soldier);
     cm = new CanvasManager({
-      canvasId: 'drawing'
-    });
-    game = new GameCore({
       canvasId: 'drawing',
-      canvasManager: cm,
       height: gameHeight,
       width: gameWidth,
-      resourceManager: rm,
       loadingBackground: '#000',
       loadingForeground: '#BADA55',
+      draw: function(context) {
+        var s, _i, _len, _results;
+        context.drawImage(images.backgroundImg, 0, 0);
+        _results = [];
+        for (_i = 0, _len = spriteList.length; _i < _len; _i++) {
+          s = spriteList[_i];
+          _results.push(s.drawCurrentFrame(context));
+        }
+        return _results;
+      }
+    });
+    im = new InputManager();
+    im.bindKeys();
+    game = new GameCore({
+      inputManager: im,
+      canvasManager: cm,
+      resourceManager: rm,
       initInput: function(im) {
         this.moveLeft = new GameAction({
           name: 'moveLeft'
@@ -128,18 +138,18 @@ require(['mwe/GameCore', 'mwe/Sprite', 'mwe/ResourceManager', 'mwe/CanvasManager
           name: 'exit',
           behavior: this.moveLeft.statics.DETECT_INITIAL_PRESS_ONLY
         });
-        im.mapToKey(this.moveLeft, keys.LEFT_ARROW);
-        im.mapToKey(this.moveRight, keys.RIGHT_ARROW);
-        im.mapToKey(this.moveUp, keys.UP_ARROW);
-        im.mapToKey(this.moveDown, keys.DOWN_ARROW);
-        return im.mapToKey(this.exit, keys.ESCAPE);
+        im.mapToKey(this.moveLeft, dojo.keys.LEFT_ARROW);
+        im.mapToKey(this.moveRight, dojo.keys.RIGHT_ARROW);
+        im.mapToKey(this.moveUp, dojo.keys.UP_ARROW);
+        im.mapToKey(this.moveDown, dojo.keys.DOWN_ARROW);
+        return im.mapToKey(this.exit, dojo.keys.ESCAPE);
       }
     });
     game.update = function(elapsedTime) {
-      var otherS, playAnvil, s, _j, _k, _l, _len2, _len3, _len4;
+      var otherS, playAnvil, s, _i, _j, _k, _len, _len2, _len3;
       this.handleInput();
-      for (_j = 0, _len2 = spriteList.length; _j < _len2; _j++) {
-        s = spriteList[_j];
+      for (_i = 0, _len = spriteList.length; _i < _len; _i++) {
+        s = spriteList[_i];
         s.hasCollided = false;
         s.hasHitWall = false;
         s.update(elapsedTime);
@@ -148,11 +158,11 @@ require(['mwe/GameCore', 'mwe/Sprite', 'mwe/ResourceManager', 'mwe/CanvasManager
           s.hasHitWall = false;
         }
       }
-      for (_k = 0, _len3 = spriteList.length; _k < _len3; _k++) {
-        s = spriteList[_k];
+      for (_j = 0, _len2 = spriteList.length; _j < _len2; _j++) {
+        s = spriteList[_j];
         if (!s.hasCollided && !s.hasHitWall) {
-          for (_l = 0, _len4 = spriteList.length; _l < _len4; _l++) {
-            otherS = spriteList[_l];
+          for (_k = 0, _len3 = spriteList.length; _k < _len3; _k++) {
+            otherS = spriteList[_k];
             if (s !== otherS) {
               if (intersectSprite(s, otherS)) {
                 s.hasCollided = true;
@@ -171,32 +181,22 @@ require(['mwe/GameCore', 'mwe/Sprite', 'mwe/ResourceManager', 'mwe/CanvasManager
         return a.y - b.y;
       });
     };
-    game.draw = function(context) {
-      var s, _j, _len2, _results;
-      context.drawImage(backgroundImg, 0, 0);
-      _results = [];
-      for (_j = 0, _len2 = spriteList.length; _j < _len2; _j++) {
-        s = spriteList[_j];
-        _results.push(s.drawCurrentFrame(context));
+    game.handleInput = function() {
+      if (this.moveLeft.isPressed()) {
+        sprite.dx = -1 * Math.abs(sprite.xStartVelocity);
+      } else if (this.moveRight.isPressed()) {
+        sprite.dx = Math.abs(sprite.xStartVelocity);
+      } else {
+        sprite.dx = 0;
       }
-      return _results;
+      if (this.moveUp.isPressed()) {
+        return sprite.dy = -1 * Math.abs(sprite.yStartVelocity);
+      } else if (this.moveDown.isPressed()) {
+        return sprite.dy = Math.abs(sprite.yStartVelocity);
+      } else {
+        return sprite.dy = 0;
+      }
     };
-    /*
-        game.handleInput = ->
-          if @moveLeft.isPressed()
-            sprite.dx = -1 * Math.abs sprite.xStartVelocity
-          else if @moveRight.isPressed()
-            sprite.dx = Math.abs sprite.xStartVelocity
-          else
-            sprite.dx = 0
-            
-          if @moveUp.isPressed()
-            sprite.dy = -1 * Math.abs sprite.yStartVelocity
-          else if @moveDown.isPressed()
-            sprite.dy = Math.abs sprite.yStartVelocity
-          else
-            sprite.dy = 0
-    */
     return game.run();
   });
   jump = 5;

@@ -1,8 +1,8 @@
-require [ 'mwe/GameCore', 'mwe/Sprite', 'mwe/ResourceManager', 'mwe/CanvasManager', 'mwe/GameAction', 'mwe/reiner/Creature', 'dojo/keys' ], (GameCore, Sprite, ResourceManager, CanvasManager, GameAction, Creature, keys) ->
+require [ 'mwe/GameCore', 'mwe/Sprite', 'mwe/ResourceManager', 'mwe/CanvasManager', 'mwe/InputManager', 'mwe/GameAction', 'mwe/reiner/Creature'], (GameCore, Sprite, ResourceManager, CanvasManager, InputManager, GameAction, Creature) ->
   gameWidth = 800
   gameHeight = 600
   spriteList = []
-
+  ###
   soundManager.url = '/nge/swf/'
   # soundManager.flashVersion = 9 # optional: shiny features (default = 8)
   # soundManager.useFlashBlock = false # optional: enable when you're ready to dive in
@@ -16,7 +16,7 @@ require [ 'mwe/GameCore', 'mwe/Sprite', 'mwe/ResourceManager', 'mwe/CanvasManage
   playSound = (sound) ->
     return sound.play() if sound
     return console.log "sound not loaded"
-
+  ###
   require [ 'dojo/domReady!' ], ->
     rm = new ResourceManager imageDir: 'images/'
     images = rm.loadFiles {
@@ -33,7 +33,7 @@ require [ 'mwe/GameCore', 'mwe/Sprite', 'mwe/ResourceManager', 'mwe/CanvasManage
       gzii: 'greenZombie/talking_b.png'
     }
 
-    for i in 3
+    for i in [0..2]
       zombie = new Creature {
         x: Math.random() * (gameWidth - 96)
         y: Math.random() * (gameHeight - 96)
@@ -66,6 +66,7 @@ require [ 'mwe/GameCore', 'mwe/Sprite', 'mwe/ResourceManager', 'mwe/CanvasManage
     sprite.walkingAnims = sprite.createAnimations 8, 75, images.swi2, 96, 96, 0
     sprite.dyingAnims = sprite.createAnimations 8, 75, images.swi2, 96, 96, 0
     sprite.idleAnims = sprite.createAnimations 9, [3000, 150, 150, 150, 1000, 150, 150, 150, 3000], images.sgi, 96, 96, 0
+    spriteList.push sprite
 
     girl = new Creature {
       x: 100
@@ -82,6 +83,7 @@ require [ 'mwe/GameCore', 'mwe/Sprite', 'mwe/ResourceManager', 'mwe/CanvasManage
       talkingAnims: sprite.createAnimations 8, 75, images.gwi, 96, 96, 0
       name: 'girl'
     }
+    spriteList.push girl
 
     soldier = new Creature {
       x: 10
@@ -95,19 +97,27 @@ require [ 'mwe/GameCore', 'mwe/Sprite', 'mwe/ResourceManager', 'mwe/CanvasManage
       talkingAnims: sprite.createAnimations 8, 75, images.bwi, 96, 96, 0
       name: 'cw'
     }
-    
+    spriteList.push soldier
+
     cm = new CanvasManager {
       canvasId: 'drawing'
-    }
-
-    game = new GameCore {
-      canvasId: 'drawing'
-      canvasManager: cm
       height: gameHeight
       width: gameWidth
-      resourceManager: rm
       loadingBackground: '#000'
       loadingForeground: '#BADA55'
+      draw: (context) ->
+        context.drawImage images.backgroundImg, 0, 0
+        for s in spriteList
+          s.drawCurrentFrame context
+    }
+
+    im = new InputManager()
+    im.bindKeys()
+
+    game = new GameCore {
+      inputManager: im
+      canvasManager: cm
+      resourceManager: rm
       initInput: (im) ->
         @moveLeft = new GameAction name: 'moveLeft'
         @moveRight = new GameAction name: 'moveRight'
@@ -117,13 +127,13 @@ require [ 'mwe/GameCore', 'mwe/Sprite', 'mwe/ResourceManager', 'mwe/CanvasManage
           name: 'exit'
           behavior: @moveLeft.statics.DETECT_INITIAL_PRESS_ONLY
         }
-        im.mapToKey @moveLeft, keys.LEFT_ARROW
-        im.mapToKey @moveRight, keys.RIGHT_ARROW
-        im.mapToKey @moveUp, keys.UP_ARROW
-        im.mapToKey @moveDown, keys.DOWN_ARROW
-        im.mapToKey @exit, keys.ESCAPE
+        im.mapToKey @moveLeft, dojo.keys.LEFT_ARROW
+        im.mapToKey @moveRight, dojo.keys.RIGHT_ARROW
+        im.mapToKey @moveUp, dojo.keys.UP_ARROW
+        im.mapToKey @moveDown, dojo.keys.DOWN_ARROW
+        im.mapToKey @exit, dojo.keys.ESCAPE
     }
-        
+
     game.update = (elapsedTime) ->
       @handleInput()
       for s in spriteList
@@ -145,12 +155,7 @@ require [ 'mwe/GameCore', 'mwe/Sprite', 'mwe/ResourceManager', 'mwe/CanvasManage
           flipY s
           s.update elapsedTime # move a little further in the new direction
       spriteList.sort (a,b) -> return a.y - b.y
-      
-    game.draw = (context) ->
-      context.drawImage backgroundImg, 0, 0
-      for s in spriteList
-        s.drawCurrentFrame context
-    ###
+
     game.handleInput = ->
       if @moveLeft.isPressed()
         sprite.dx = -1 * Math.abs sprite.xStartVelocity
@@ -158,16 +163,16 @@ require [ 'mwe/GameCore', 'mwe/Sprite', 'mwe/ResourceManager', 'mwe/CanvasManage
         sprite.dx = Math.abs sprite.xStartVelocity
       else
         sprite.dx = 0
-        
+
       if @moveUp.isPressed()
         sprite.dy = -1 * Math.abs sprite.yStartVelocity
       else if @moveDown.isPressed()
         sprite.dy = Math.abs sprite.yStartVelocity
       else
         sprite.dy = 0
-    ###
+
     game.run()
-    
+
   jump = 5
   playFart = false
   handleWalls = (s) ->
@@ -180,7 +185,7 @@ require [ 'mwe/GameCore', 'mwe/Sprite', 'mwe/ResourceManager', 'mwe/CanvasManage
       s.x = s.x + jump
       flipX s
       hitWall = true
-      
+
     if s.y > gameHeight - s.h
       s.y = s.y - jump
       flipY s
@@ -189,20 +194,20 @@ require [ 'mwe/GameCore', 'mwe/Sprite', 'mwe/ResourceManager', 'mwe/CanvasManage
       s.y = s.y + jump
       flipY s
       hitWall = true
-      
+
     return hitWall
-    
+
   flipX = (s) ->
     s.dx = s.dx * -1
-    
+
   flipY = (s) ->
     s.dy = s.dy * -1
-    
+
   intersectSprite = (s1, s2) ->
-    distance_squared = Math.pow((s1.x + (s1.anim.width/2)) - (s2.x + (s2.anim.width/2)), 2) + Math.pow((s1.y + (s1.anim.height/2)) - (s2.y + (s2.anim.height/2)), 2)
+    distance_squared = Math.pow((s1.x + (s1.anim.width / 2)) - (s2.x + (s2.anim.width / 2)), 2) + Math.pow((s1.y + (s1.anim.height / 2)) - (s2.y + (s2.anim.height / 2)), 2)
     radii_squared = Math.pow s1.collisionRadius + s2.collisionRadius, 2
     return distance_squared < radii_squared # true if intersect
-    
+
   changeDirection = ->
     sprite.dy = sprite.dy * -1
     sprite.dx = sprite.dx * -1
