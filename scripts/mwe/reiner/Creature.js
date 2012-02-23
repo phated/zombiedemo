@@ -89,5 +89,19 @@ define(['dojo/_base/declare', 'mwe/Sprite', 'mwe/Animation'], function(declare, 
       }
       return anims;
     }
+    /* Contra's version
+    createAnimations: (frameCount, frameTimes, img, h, w, ySlot=0) ->
+      anims = []
+      currentFrameTime = 1
+      for i in [0..7]
+        anims[i] = new Animation
+          height: h
+          width: w
+          image: img
+        for j, item in Array(frameTime-1)
+          currentFrameTime = (if Array.isArray frameTimes then frameTimes[j] else frameTimes)
+          anims[i].addFrame currentFrameTime, (j + frameCount * i), ySlot
+      return anims
+    */
   });
 });
